@@ -1,0 +1,30 @@
+{
+  "name": "daap_todotask",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rsilgal/Daap_ToDoTask.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rsilgal/Daap_ToDoTask/issues"
+  },
+  "homepage": "https://github.com/Rsilgal/Daap_ToDoTask#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.5",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.13.0"
+  }
+}
