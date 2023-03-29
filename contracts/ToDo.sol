@@ -13,7 +13,7 @@ contract ToDo {
 
     event SendTasks(Task[] tasks);
 
-    function getAllTaskByAddress(address _owner) view public returns(Task[] memory) {
+    function getAllTaskByOwner(address _owner) view public returns(Task[] memory) {
         return taskList[_owner];
     }
 }
