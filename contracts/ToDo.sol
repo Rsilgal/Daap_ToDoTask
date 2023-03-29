@@ -10,4 +10,10 @@ contract ToDo {
     }
 
     mapping(address => Task[]) private taskList;
+
+    event SendTasks(Task[] tasks);
+
+    function getAllTaskByAddress(address _owner) view public returns(Task[] memory) {
+        return taskList[_owner];
+    }
 }
