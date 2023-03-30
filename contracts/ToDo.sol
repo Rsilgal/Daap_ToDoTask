@@ -18,7 +18,8 @@ contract ToDo {
     event SendModifiedTask(Task task);
 
     function getAllTaskByOwner(address _owner) view public returns(Task[] memory) {
-        // Check if owner has any task
+        require(ownerTaskCount[_owner] > 0, "This owner does not have any task");
+
         uint256 _counterOfTasks = 0;
         Task[] memory tasksList;
 
