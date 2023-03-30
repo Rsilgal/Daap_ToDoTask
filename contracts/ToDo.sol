@@ -17,6 +17,12 @@ contract ToDo {
     event SendTasks(Task[] tasks);
     event SendModifiedTask(Task task);
 
+    modifier checkIfTaskExitAndSenderIsTheOwner(uint256 _id) {
+        require(_id <= tasks.length, "There is no task with this id");
+        require(msg.sender == taskToOwner[_id], "You are not the owner of this task");
+        _;
+    }
+
     function getAllTaskByOwner(address _owner) view public returns(Task[] memory) {
         require(ownerTaskCount[_owner] > 0, "This owner does not have any task");
 
@@ -36,8 +42,7 @@ contract ToDo {
         return tasksList;
     }
 
-    function getTaskById(uint256 _id, address _owner) view public returns(Task memory) {
-        // Check if the task exists and the owner is the sender
+    function getTaskById(uint256 _id) view public checkIfTaskExitAndSenderIsTheOwner(_id) returns(Task memory) {
         return tasks[_id];
     }
 
@@ -50,8 +55,7 @@ contract ToDo {
         emit SendTasks(getAllTaskByOwner(_owner));
     }
 
-    function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public {
-        // Check if the task exists and the owner is the sender
+    function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public checkIfTaskExitAndSenderIsTheOwner(_id) {
         if (tasks[_id].deleted != _deleted) {
             tasks[_id].deleted = _deleted;
         }
