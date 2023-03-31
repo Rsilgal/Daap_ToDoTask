@@ -1,8 +1,10 @@
 import hre from 'hardhat'
 
 describe("ToDo", function () {
-    before(function() {
+    before(async function() {
         // Run once before the first test
+        const ToDo = await hre.ethers.getContractFactory('ToDo');
+        const toDo = await ToDo.deploy();
     });
 
     describe("Create a task", function() {
