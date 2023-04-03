@@ -1,77 +1,93 @@
-import hre from 'hardhat'
+import hre, { ethers } from 'hardhat'
+import { ToDo } from '../typechain-types';
+import { expect } from 'chai';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 describe("ToDo", function () {
-    before(async function() {
-        // Run once before the first test
-        const ToDo = await hre.ethers.getContractFactory('ToDo');
-        const toDo = await ToDo.deploy();
-    });
 
-    describe("Create a task", function() {
-        it("with the right params", function () {
+    let contract : ToDo;
+     let owner : SignerWithAddress;
+     let otheraccount : SignerWithAddress;
+
+     function getTaskProperties() {
+        return {
+            description :'Descripción de la tarea',
+            title: '#1 Titulo de una tarea',
+            deleted: false,
+            finished: false
+        }
+     }
+
+    beforeEach(async function() {
+        [ owner, otheraccount ] = await ethers.getSigners();
+        const ToDo = await ethers.getContractFactory('ToDo');
+        contract = await ToDo.deploy();
+
+    })
+
+    describe("Create a task",  function() {
+        it("with the right params", async function () {
+            // const { contract, task, owner } = await initializeTest();
+            let task = getTaskProperties();
+            await expect(contract.connect(owner).createNewTask(task.description, task.title)).to.not.reverted;
 
         })
 
-        it("without description",  function() {
+        it("should revert with message 'Description must not be empty.', when description is empty", async function() {
+            // const { contract, task } = await initializeTest()
+            let task = getTaskProperties();
+
+            task.description = '';
+
+            await expect(contract.createNewTask(task.description, task.title)).to.be.revertedWith("Text is empty.")
 
         })
 
-        it("without title", function() {
+        it("without title", async function() {
+            // const { contract, task } = await initializeTest()
+            let task = getTaskProperties();
+
+            task.title = '';
             
+            await expect(contract.createNewTask(task.description, task.title)).to.be.revertedWith("Text is empty.")
         })
-    });
-
-    describe("Edit a task and sender is the owner", function() {
-        it("with the right params", function() {
-
-        })
-
-        it("task does not exist", function() {
-
-        })
-
-        it("without id param", function() {
-
-        })
-
-        it("without deleted param", function() {
-
-        })
-
-        it("without finished param", function() {
-
-        })
-
-        it("without description param", function() {
-
-        })
-
-        it("without title param", function() {
-
-        })
-
-        it("without change task", function() {
-
-        })
-    });
-
-    describe("Edit a task and sender is not the owner", function() {
-        it("", function(){
-
-        });
     });
 
     describe("Get task data", function() {
-        it("by id and sender is the owner", function() {
+        it("by id and sender is the owner", async function() {
+            let task = getTaskProperties();
+            await contract.connect(owner).createNewTask(task.description, task.title);
 
+            const createdTask = await contract.getTaskById(0);
+
+            expect(createdTask.description).to.equal(task.description);
+            expect(createdTask.title).to.equal(task.title);
+            expect(createdTask.deleted).to.equal(task.deleted);
+            expect(createdTask.finished).to.equal(task.finished);
         });
 
-        it("by id and sender is not the owner", function() {
+        it("by id and sender is not the owner", async function() {
+            let task = getTaskProperties();
+            await contract.connect(owner).createNewTask(task.description, task.title);
 
+            await expect(contract.connect(otheraccount).getTaskById(0)).to.revertedWith("You are not the owner of this task.")
         });
 
-        it("id task does not exist", function() {
-
+        it("id task does not exist", async function() {
+            await expect(contract.connect(owner).getTaskById(0)).to.revertedWith("There is no task with this id.");
         });
+
+        it("Get all my tasks", async function () {
+            let task = getTaskProperties();
+            await contract.connect(owner).createNewTask(task.description, task.title);
+            
+            let tasks = await contract.connect(owner).getAllTaskByOwner();
+            
+            expect(tasks.length).to.be.greaterThan(0);
+        })
+
+        it("should revert with message 'This owner does not have any task.', when i dont have any task.", async function () {
+            await expect(contract.getAllTaskByOwner()).to.revertedWith("This owner does not have any task.");
+        })
     })
 })

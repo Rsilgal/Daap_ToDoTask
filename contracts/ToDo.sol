@@ -18,16 +18,24 @@ contract ToDo {
     event SendModifiedTask(Task task);
 
     modifier checkIfTaskExitAndSenderIsTheOwner(uint256 _id) {
-        require(_id <= tasks.length, "There is no task with this id");
-        require(msg.sender == taskToOwner[_id], "You are not the owner of this task");
+        require(_id < tasks.length, "There is no task with this id.");
+        require(msg.sender == taskToOwner[_id], "You are not the owner of this task.");
         _;
     }
 
-    function getAllTaskByOwner(address _owner) view public returns(Task[] memory) {
-        require(ownerTaskCount[_owner] > 0, "This owner does not have any task");
+    modifier checkIfStringIsEmpty(string memory _text) {
+        bytes memory _textBytes = bytes(_text);
+        require(_textBytes.length > 0, "Text is empty.");
+        _;
+    }
+
+    function getAllTaskByOwner() view public returns(Task[] memory) {
+        require(ownerTaskCount[msg.sender] > 0, "This owner does not have any task.");
+
+        address _owner = msg.sender;
 
         uint256 _counterOfTasks = 0;
-        Task[] memory tasksList;
+        Task[] memory tasksList = new Task[](ownerTaskCount[_owner]);
 
         for (uint256 i = 0; i < tasks.length; i++) {
             if (_counterOfTasks == ownerTaskCount[_owner]) {
@@ -46,13 +54,13 @@ contract ToDo {
         return tasks[_id];
     }
 
-    function createNewTask(string memory _description, string memory _title) public  {
+    function createNewTask(string memory _description, string memory _title) public checkIfStringIsEmpty(_description) checkIfStringIsEmpty(_title) {
         address _owner = msg.sender;
         tasks.push(Task(false, false, _description, _title));
         uint id = tasks.length - 1;
         taskToOwner[id] = _owner;
         ownerTaskCount[_owner]++;
-        emit SendTasks(getAllTaskByOwner(_owner));
+        // emit SendTasks(getAllTaskByOwner());
     }
 
     function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public checkIfTaskExitAndSenderIsTheOwner(_id) {
