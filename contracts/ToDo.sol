@@ -48,6 +48,7 @@ contract ToDo {
 
             if (taskToOwner[i] == _owner) {
                 tasksList[_counterOfTasks] = tasks[i];
+                _counterOfTasks++;
             }
         }
         

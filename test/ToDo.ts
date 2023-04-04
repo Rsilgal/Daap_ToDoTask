@@ -74,6 +74,7 @@ describe("ToDo", function () {
             await expect(contract.connect(owner).getTaskById(0)).to.revertedWith("There is no task with this id.");
         });
 
+        // TODO: Change this test. It does not covered when the owner has some task
         it("Get all my tasks", async function () {
             let task = getTaskProperties();
             await contract.connect(owner).createNewTask(task.description, task.title);
@@ -86,5 +87,78 @@ describe("ToDo", function () {
         it("should revert with message 'This owner does not have any task.', when i dont have any task.", async function () {
             await expect(contract.getAllTaskByOwner()).to.revertedWith("This owner does not have any task.");
         })
+    })
+
+    describe("Edit task data", function() {
+        it("edit without changes", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.deleted).to.be.equal(taskData.deleted);
+            expect(editedTask.finished).to.be.equal(taskData.finished);
+            expect(editedTask.description).to.be.equal(taskData.description);
+            expect(editedTask.title).to.be.equal(taskData.title);
+        });
+
+        it("change finished to TRUE", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await contract.editTask(0, taskData.deleted, true, taskData.description, taskData.title);
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.finished).to.be.equal(true);
+        });
+
+        it("change deleted to TRUE", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await contract.editTask(0, true, taskData.finished, taskData.description, taskData.title);
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.deleted).to.be.equal(true);
+        });
+
+        it("change description to 'New Description'", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await contract.editTask(0, taskData.deleted, taskData.finished, "New Description", taskData.title);
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.description).to.be.equal("New Description");
+        });
+
+        it("change title to 'New Title'", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await contract.editTask(0, taskData.deleted, taskData.finished, taskData.description, 'New Title');
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.title).to.be.equal("New Title");
+        });
+
+        it("change title to 'New Title' and finished to TRUE", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await contract.editTask(0, taskData.deleted, true, taskData.description, 'New Title');
+            const editedTask = await contract.getTaskById(0);
+            expect(editedTask.finished).to.be.equal(true);
+            expect(editedTask.title).to.be.equal("New Title");
+        });
+
+        it("should revert with message 'There is no task with this id.', when id does not exist", async function() {
+            const taskData = getTaskProperties();
+            await contract.createNewTask(taskData.description, taskData.title);
+
+            await expect(contract.editTask(10, taskData.deleted, true, taskData.description, taskData.title)).to.rejectedWith("There is no task with this id.");
+        });
+
+        it("should revert with message 'You are not the owner of this task.', when owner have not this task.", async function() {
+            const taskData = getTaskProperties();
+            await contract.connect(owner).createNewTask(taskData.description, taskData.title);
+
+            await expect(contract.connect(otheraccount).editTask(0, taskData.deleted, true, taskData.description, taskData.title)).to.rejectedWith("You are not the owner of this task.");
+        });
     })
 })
