@@ -33,9 +33,12 @@ contract ToDo {
         _;
     }
 
-    function getAllTaskByOwner() view public returns(Task[] memory) {
+    modifier checkIfSenderHasSomeTasks() {
         require(ownerTaskCount[msg.sender] > 0, "This owner does not have any task.");
+        _;
+    }
 
+    function getAllTaskByOwner() view public checkIfSenderHasSomeTasks() returns(Task[] memory) {
         address _owner = msg.sender;
 
         uint256 _counterOfTasks = 0;

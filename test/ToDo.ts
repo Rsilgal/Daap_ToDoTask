@@ -19,7 +19,7 @@ describe("ToDo", function () {
      }
 
     beforeEach(async function() {
-        [ owner, otheraccount ] = await ethers.getSigners();
+        [ owner, otheraccount ] = await hre.ethers.getSigners();
         const ToDo = await ethers.getContractFactory('ToDo');
         contract = await ToDo.deploy();
 
