@@ -27,14 +27,12 @@ describe("ToDo", function () {
 
     describe("Create a task",  function() {
         it("with the right params", async function () {
-            // const { contract, task, owner } = await initializeTest();
             let task = getTaskProperties();
             await expect(contract.connect(owner).createNewTask(task.description, task.title)).to.not.reverted;
 
         })
 
         it("should revert with message 'Description must not be empty.', when description is empty", async function() {
-            // const { contract, task } = await initializeTest()
             let task = getTaskProperties();
 
             task.description = '';
@@ -44,7 +42,6 @@ describe("ToDo", function () {
         })
 
         it("without title", async function() {
-            // const { contract, task } = await initializeTest()
             let task = getTaskProperties();
 
             task.title = '';
