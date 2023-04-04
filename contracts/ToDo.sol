@@ -60,7 +60,7 @@ contract ToDo {
         uint id = tasks.length - 1;
         taskToOwner[id] = _owner;
         ownerTaskCount[_owner]++;
-        // emit SendTasks(getAllTaskByOwner());
+        emit SendTasks(getAllTaskByOwner());
     }
 
     function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public checkIfTaskExitAndSenderIsTheOwner(_id) {
