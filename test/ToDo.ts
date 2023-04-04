@@ -78,10 +78,11 @@ describe("ToDo", function () {
         it("Get all my tasks", async function () {
             let task = getTaskProperties();
             await contract.connect(owner).createNewTask(task.description, task.title);
+            await contract.connect(owner).createNewTask(task.description, task.title);
             
             let tasks = await contract.connect(owner).getAllTaskByOwner();
             
-            expect(tasks.length).to.be.greaterThan(0);
+            expect(tasks.length).to.be.equal(2);
         })
 
         it("should revert with message 'This owner does not have any task.', when i dont have any task.", async function () {
