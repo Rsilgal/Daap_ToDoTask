@@ -39,8 +39,25 @@ contract ToDo {
     }
 
     function getAllTaskByOwner() view public checkIfSenderHasSomeTasks() returns(Task[] memory) {
-        address _owner = msg.sender;
+        return _getTasksByOwner(msg.sender);
+    }
 
+    function getTaskById(uint256 _id) view public checkIfTaskExit(_id) checkIfSenderIsTheOwner(_id) returns(Task memory) {
+        return tasks[_id];
+    }
+
+    function createNewTask(string memory _description, string memory _title) public checkIfStringIsEmpty(_description) checkIfStringIsEmpty(_title) {
+        _createNewTask(_description, _title);
+        emit SendTasks(getAllTaskByOwner());
+    }
+
+    function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public checkIfTaskExit(_id) checkIfSenderIsTheOwner(_id) {
+        _editTask(_id, _deleted, _finished, _description, _title);
+        Task memory task = getTaskById(_id);
+        emit SendModifiedTask(task);
+    }
+
+    function _getTasksByOwner(address _owner) internal view returns(Task[] memory) {
         uint256 _counterOfTasks = 0;
         Task[] memory tasksList = new Task[](ownerTaskCount[_owner]);
 
@@ -54,24 +71,11 @@ contract ToDo {
                 _counterOfTasks++;
             }
         }
-        
+
         return tasksList;
     }
 
-    function getTaskById(uint256 _id) view public checkIfTaskExit(_id) checkIfSenderIsTheOwner(_id) returns(Task memory) {
-        return tasks[_id];
-    }
-
-    function createNewTask(string memory _description, string memory _title) public checkIfStringIsEmpty(_description) checkIfStringIsEmpty(_title) {
-        address _owner = msg.sender;
-        tasks.push(Task(false, false, _description, _title));
-        uint id = tasks.length - 1;
-        taskToOwner[id] = _owner;
-        ownerTaskCount[_owner]++;
-        emit SendTasks(getAllTaskByOwner());
-    }
-
-    function editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) public checkIfTaskExit(_id) checkIfSenderIsTheOwner(_id) {
+    function _editTask(uint _id, bool _deleted, bool _finished, string memory _description, string memory _title) internal {
         if (tasks[_id].deleted != _deleted) {
             tasks[_id].deleted = _deleted;
         }
@@ -83,7 +87,14 @@ contract ToDo {
         }
         if (keccak256(abi.encode(tasks[_id].title)) != keccak256(abi.encode(_title))) {
             tasks[_id].title = _title;
-         }
+        }
+    }
+
+    function _createNewTask(string memory _description, string memory _title) internal {
+        tasks.push(Task(false, false, _description, _title));
+        uint id = tasks.length - 1;
+        taskToOwner[id] = msg.sender;
+        ownerTaskCount[msg.sender]++;
     }
 
 }
