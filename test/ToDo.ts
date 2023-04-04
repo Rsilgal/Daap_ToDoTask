@@ -74,20 +74,20 @@ describe("ToDo", function () {
             await expect(contract.connect(owner).getTaskById(0)).to.revertedWith("There is no task with this id.");
         });
 
-        // TODO: Change this test. It does not covered when the owner has some task
         it("Get all my tasks", async function () {
             let task = getTaskProperties();
             await contract.connect(owner).createNewTask(task.description, task.title);
-            await contract.connect(owner).createNewTask(task.description, task.title);
+            await contract.connect(owner).createNewTask(task.description, task.title);            
+            await contract.connect(otheraccount).createNewTask(task.description, task.title);            
             
             let tasks = await contract.connect(owner).getAllTaskByOwner();
             
             expect(tasks.length).to.be.equal(2);
-        })
+        });
 
         it("should revert with message 'This owner does not have any task.', when i dont have any task.", async function () {
             await expect(contract.getAllTaskByOwner()).to.revertedWith("This owner does not have any task.");
-        })
+        });
     })
 
     describe("Edit task data", function() {
